@@ -13,7 +13,9 @@ The listener emits a user-scoped invalidation after the active Keycloak transact
 - a user logs in, registers, or links a federated identity; or
 - a user is deleted.
 
-Events contain only the Keycloak realm ID, Keycloak user ID, and a stable reason. Failed or rolled-back Keycloak transactions do not emit events. Each publish waits for a JetStream acknowledgement. Publish failures are logged and do not fail the completed Keycloak operation. The permissions service performs scheduled reconciliation to recover changes that cannot be resolved from an individual Keycloak event.
+Events contain only the Keycloak realm ID, Keycloak user ID, and a stable reason. Failed or rolled-back Keycloak transactions do not emit events. Each publish waits for a JetStream acknowledgement. Publish failures are logged and do not fail the completed Keycloak operation.
+
+Keycloak emits group deletion events after removing the group and its membership data. Those events cannot be expanded into user-scoped invalidations. The permissions service performs scheduled reconciliation to recover group deletions and other changes that cannot be resolved from an individual Keycloak event.
 
 ## Build
 

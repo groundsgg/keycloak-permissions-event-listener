@@ -5,6 +5,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
+import io.mockk.verify
 import java.util.stream.Stream
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -243,6 +244,21 @@ class PermissionsEventListenerProviderTest {
             published.mapTo(mutableSetOf()) { it.keycloakUserId },
         )
         assertTrue(published.all { it.reason == IdentityChangeReason.GROUP_CHANGED.value })
+    }
+
+    @Test
+    fun `leaves deleted groups to scheduled reconciliation`() {
+        provider()
+            .onEvent(
+                adminEvent(ResourceType.GROUP, OperationType.DELETE, "groups/group-1").apply {
+                    representation = """{"id":"group-1","name":"Developer"}"""
+                },
+                false,
+            )
+
+        assertTrue(published.isEmpty())
+        assertTrue(!enlisted.isCaptured)
+        verify(exactly = 0) { session.realms() }
     }
 
     @Test

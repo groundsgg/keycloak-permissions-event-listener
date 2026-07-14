@@ -50,6 +50,9 @@ internal constructor(
     }
 
     private fun scheduleGroupMembers(event: AdminEvent) {
+        // Keycloak emits group deletion events after removing the group and its memberships.
+        // Scheduled reconciliation handles deletions because user-scoped fanout is no longer
+        // possible.
         if (event.operationType !in setOf(OperationType.UPDATE, OperationType.ACTION)) return
         val groupId =
             representedId(event.representation)
