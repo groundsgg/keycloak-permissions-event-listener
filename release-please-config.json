@@ -1,0 +1,10 @@
+{
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "package-name": "keycloak-permissions-event-listener",
+      "include-v-in-tag": true
+    }
+  }
+}
