@@ -36,7 +36,7 @@ dependencies {
     testImplementation("com.fasterxml.jackson.core:jackson-databind")
     testImplementation("org.jboss.logging:jboss-logging")
     testImplementation(kotlin("test"))
-    testImplementation("io.mockk:mockk:1.14.9")
+    testImplementation("io.mockk:mockk:1.14.11")
 }
 
 spotless {
