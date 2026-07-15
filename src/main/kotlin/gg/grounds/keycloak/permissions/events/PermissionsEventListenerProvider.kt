@@ -16,7 +16,7 @@ import org.keycloak.models.RealmModel
 class PermissionsEventListenerProvider
 internal constructor(
     private val session: KeycloakSession,
-    private val configuredRealm: String,
+    private val configuredRealmIds: Set<String>,
     private val publisher: IdentityChangePublisher,
     private val publishFailureReporter: (MinecraftIdentityChangedEvent, Exception) -> Unit =
         ::reportPublishFailure,
@@ -24,14 +24,14 @@ internal constructor(
         ::reportGroupLookupFailure,
 ) : EventListenerProvider {
     override fun onEvent(event: Event) {
-        if (!matchesRealm(event.realmId, event.realmName) || event.userId.isNullOrBlank()) return
+        if (!matchesRealm(event.realmId) || event.userId.isNullOrBlank()) return
         if (event.type !in REFRESH_EVENTS) return
 
         schedule(event.realmId, event.userId, IdentityChangeReason.IDENTITY_REFRESHED)
     }
 
     override fun onEvent(event: AdminEvent, includeRepresentation: Boolean) {
-        if (!matchesRealm(event.realmId, event.realmName)) return
+        if (!matchesRealm(event.realmId)) return
 
         when (event.resourceType) {
             ResourceType.GROUP_MEMBERSHIP -> scheduleGroupMembership(event)
@@ -116,8 +116,7 @@ internal constructor(
         pending.add(realmId, userId, reason)
     }
 
-    private fun matchesRealm(realmId: String?, realmName: String?): Boolean =
-        configuredRealm == realmId || configuredRealm == realmName
+    private fun matchesRealm(realmId: String?): Boolean = realmId in configuredRealmIds
 
     private fun resourceId(resourcePath: String?, collection: String): String? {
         val segments = resourcePath?.split('/')?.filter(String::isNotBlank) ?: return null
