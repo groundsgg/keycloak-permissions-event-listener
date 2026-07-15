@@ -11,15 +11,15 @@ internal constructor(private val publisherFactory: (String, String) -> IdentityC
     EventListenerProviderFactory {
     constructor() : this(NatsIdentityChangePublisher::connect)
 
-    private lateinit var realms: Set<String>
+    private lateinit var realmIds: Set<String>
     private lateinit var publisher: IdentityChangePublisher
 
     override fun create(session: KeycloakSession): EventListenerProvider =
-        PermissionsEventListenerProvider(session, realms, publisher)
+        PermissionsEventListenerProvider(session, realmIds, publisher)
 
     override fun init(config: Config.Scope) {
         val natsUrl = required(config.get("nats-url"), "nats-url")
-        realms = parseRealms(config.get("realm"))
+        realmIds = parseRealmIds(config.get("realm"))
         val subject = required(config.get("subject", DEFAULT_SUBJECT), "subject")
         require(PUBLISH_SUBJECT.matches(subject)) {
             "Permissions event listener subject must be a valid publish subject"
@@ -45,13 +45,13 @@ internal constructor(private val publisherFactory: (String, String) -> IdentityC
         const val DEFAULT_SUBJECT = "minecraft-identity.changed"
         private val PUBLISH_SUBJECT = Regex("^[^\\s.*>]+(?:\\.[^\\s.*>]+)*$")
 
-        internal fun parseRealms(value: String?): Set<String> {
-            val realms =
+        internal fun parseRealmIds(value: String?): Set<String> {
+            val realmIds =
                 value?.split(',')?.map(String::trim)?.filter(String::isNotEmpty)?.toSet().orEmpty()
-            require(realms.isNotEmpty()) {
+            require(realmIds.isNotEmpty()) {
                 "Permissions event listener configuration is required: realm"
             }
-            return realms
+            return realmIds
         }
     }
 }

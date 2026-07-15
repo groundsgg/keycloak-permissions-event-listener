@@ -45,7 +45,7 @@ cp keycloak-permissions-event-listener.jar /opt/keycloak/providers/
 | Environment variable                                 | Required | Default                      | Description                            |
 |------------------------------------------------------|----------|------------------------------|----------------------------------------|
 | `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_NATS_URL` | Yes      | -                            | NATS server URL with JetStream enabled |
-| `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_REALM`    | Yes      | -                            | Comma-separated accepted realm IDs or names |
+| `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_REALM`    | Yes      | -                            | Comma-separated accepted realm IDs     |
 | `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_SUBJECT`  | No       | `minecraft-identity.changed` | NATS subject for invalidation events   |
 
 The configured publish subject must be retained by a JetStream stream before the listener starts publishing events.

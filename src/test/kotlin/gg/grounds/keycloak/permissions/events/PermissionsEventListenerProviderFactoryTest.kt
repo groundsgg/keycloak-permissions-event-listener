@@ -45,14 +45,16 @@ class PermissionsEventListenerProviderFactoryTest {
     fun `parses a normalized list of configured realms`() {
         assertEquals(
             setOf("grounds", "grounds-test"),
-            PermissionsEventListenerProviderFactory.parseRealms(" grounds, grounds-test,grounds "),
+            PermissionsEventListenerProviderFactory.parseRealmIds(
+                " grounds, grounds-test,grounds "
+            ),
         )
     }
 
     @Test
     fun `rejects an empty configured realm list`() {
         assertFailsWith<IllegalArgumentException> {
-            PermissionsEventListenerProviderFactory.parseRealms(" , ")
+            PermissionsEventListenerProviderFactory.parseRealmIds(" , ")
         }
     }
 

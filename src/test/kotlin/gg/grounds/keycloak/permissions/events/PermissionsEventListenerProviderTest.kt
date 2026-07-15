@@ -237,6 +237,24 @@ class PermissionsEventListenerProviderTest {
     }
 
     @Test
+    fun `does not accept an unconfigured realm with a colliding name`() {
+        provider(setOf(REALM_ID))
+            .onEvent(
+                adminEvent(
+                    ResourceType.GROUP_MEMBERSHIP,
+                    OperationType.CREATE,
+                    "users/user-2/groups/group-1",
+                    realmId = "other-realm-id",
+                    realmName = REALM_ID,
+                ),
+                false,
+            )
+
+        assertTrue(published.isEmpty())
+        assertTrue(!enlisted.isCaptured)
+    }
+
+    @Test
     fun `captures affected group members before transaction completion`() {
         val realm = mockk<RealmModel>()
         val group = mockk<GroupModel>()
@@ -421,10 +439,10 @@ class PermissionsEventListenerProviderTest {
         assertEquals(1, reportedFailures)
     }
 
-    private fun provider(configuredRealms: Set<String> = setOf(REALM_ID)) =
+    private fun provider(configuredRealmIds: Set<String> = setOf(REALM_ID)) =
         PermissionsEventListenerProvider(
             session,
-            configuredRealms,
+            configuredRealmIds,
             publisher,
             publishFailureReporter = { _, _ -> },
             groupLookupFailureReporter = { _, _, _ -> },
@@ -440,10 +458,11 @@ class PermissionsEventListenerProviderTest {
         operationType: OperationType,
         resourcePath: String,
         realmId: String = REALM_ID,
+        realmName: String = realmId,
     ) =
         AdminEvent().apply {
             this.realmId = realmId
-            this.realmName = realmId
+            this.realmName = realmName
             this.resourceType = resourceType
             this.operationType = operationType
             this.resourcePath = resourcePath
