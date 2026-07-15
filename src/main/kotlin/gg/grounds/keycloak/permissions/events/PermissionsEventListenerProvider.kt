@@ -16,7 +16,7 @@ import org.keycloak.models.RealmModel
 class PermissionsEventListenerProvider
 internal constructor(
     private val session: KeycloakSession,
-    private val configuredRealm: String,
+    private val configuredRealms: Set<String>,
     private val publisher: IdentityChangePublisher,
     private val publishFailureReporter: (MinecraftIdentityChangedEvent, Exception) -> Unit =
         ::reportPublishFailure,
@@ -117,7 +117,7 @@ internal constructor(
     }
 
     private fun matchesRealm(realmId: String?, realmName: String?): Boolean =
-        configuredRealm == realmId || configuredRealm == realmName
+        realmId in configuredRealms || realmName in configuredRealms
 
     private fun resourceId(resourcePath: String?, collection: String): String? {
         val segments = resourcePath?.split('/')?.filter(String::isNotBlank) ?: return null

@@ -33,7 +33,7 @@ build/libs/keycloak-permissions-event-listener.jar
 
 ## Installation
 
-Copy the JAR into the Keycloak providers directory, rebuild Keycloak, and enable the `permissions-events` event listener in the target realm.
+Copy the JAR into the Keycloak providers directory, rebuild Keycloak, and enable the `permissions-events` event listener in each target realm.
 
 ```bash
 cp keycloak-permissions-event-listener.jar /opt/keycloak/providers/
@@ -45,7 +45,7 @@ cp keycloak-permissions-event-listener.jar /opt/keycloak/providers/
 | Environment variable                                 | Required | Default                      | Description                            |
 |------------------------------------------------------|----------|------------------------------|----------------------------------------|
 | `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_NATS_URL` | Yes      | -                            | NATS server URL with JetStream enabled |
-| `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_REALM`    | Yes      | -                            | Accepted Keycloak realm ID or name     |
+| `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_REALM`    | Yes      | -                            | Comma-separated accepted realm IDs or names |
 | `KC_SPI_EVENTS_LISTENER_PERMISSIONS_EVENTS_SUBJECT`  | No       | `minecraft-identity.changed` | NATS subject for invalidation events   |
 
 The configured publish subject must be retained by a JetStream stream before the listener starts publishing events.

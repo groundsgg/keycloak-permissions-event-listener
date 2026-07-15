@@ -42,6 +42,21 @@ class PermissionsEventListenerProviderFactoryTest {
     }
 
     @Test
+    fun `parses a normalized list of configured realms`() {
+        assertEquals(
+            setOf("grounds", "grounds-test"),
+            PermissionsEventListenerProviderFactory.parseRealms(" grounds, grounds-test,grounds "),
+        )
+    }
+
+    @Test
+    fun `rejects an empty configured realm list`() {
+        assertFailsWith<IllegalArgumentException> {
+            PermissionsEventListenerProviderFactory.parseRealms(" , ")
+        }
+    }
+
+    @Test
     fun `rejects subjects that cannot be used for publishing`() {
         listOf("minecraft-identity.*", "minecraft-identity.>", "minecraft identity.changed", "a..b")
             .forEach { invalidSubject ->

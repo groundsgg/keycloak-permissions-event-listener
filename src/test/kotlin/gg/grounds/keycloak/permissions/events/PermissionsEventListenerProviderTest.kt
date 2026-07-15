@@ -217,6 +217,26 @@ class PermissionsEventListenerProviderTest {
     }
 
     @Test
+    fun `accepts events from every configured realm`() {
+        val provider = provider(setOf(REALM_ID, "grounds-test"))
+
+        provider.onEvent(
+            adminEvent(
+                ResourceType.GROUP_MEMBERSHIP,
+                OperationType.CREATE,
+                "users/user-2/groups/group-1",
+                "grounds-test",
+            ),
+            false,
+        )
+
+        commit()
+
+        assertEquals("grounds-test", published.single().realmId)
+        assertEquals("user-2", published.single().keycloakUserId)
+    }
+
+    @Test
     fun `captures affected group members before transaction completion`() {
         val realm = mockk<RealmModel>()
         val group = mockk<GroupModel>()
@@ -343,7 +363,7 @@ class PermissionsEventListenerProviderTest {
 
         PermissionsEventListenerProvider(
                 session,
-                REALM_ID,
+                setOf(REALM_ID),
                 publisher,
                 publishFailureReporter = { _, _ -> },
                 groupLookupFailureReporter = { _, _, _ -> reportedFailures++ },
@@ -364,7 +384,7 @@ class PermissionsEventListenerProviderTest {
         val failingProvider =
             PermissionsEventListenerProvider(
                 session,
-                REALM_ID,
+                setOf(REALM_ID),
                 IdentityChangePublisher { error("nats unavailable") },
                 publishFailureReporter = { _, _ -> reportedFailures++ },
                 groupLookupFailureReporter = { _, _, _ -> },
@@ -386,7 +406,7 @@ class PermissionsEventListenerProviderTest {
 
         PermissionsEventListenerProvider(
                 session,
-                REALM_ID,
+                setOf(REALM_ID),
                 publisher,
                 publishFailureReporter = { _, _ -> },
                 groupLookupFailureReporter = { _, _, _ -> reportedFailures++ },
@@ -401,10 +421,10 @@ class PermissionsEventListenerProviderTest {
         assertEquals(1, reportedFailures)
     }
 
-    private fun provider() =
+    private fun provider(configuredRealms: Set<String> = setOf(REALM_ID)) =
         PermissionsEventListenerProvider(
             session,
-            REALM_ID,
+            configuredRealms,
             publisher,
             publishFailureReporter = { _, _ -> },
             groupLookupFailureReporter = { _, _, _ -> },
@@ -459,7 +479,7 @@ class PermissionsEventListenerProviderTest {
         fun provider() =
             PermissionsEventListenerProvider(
                 session,
-                REALM_ID,
+                setOf(REALM_ID),
                 IdentityChangePublisher(published::add),
                 publishFailureReporter = { _, _ -> },
                 groupLookupFailureReporter = { _, _, _ -> },
