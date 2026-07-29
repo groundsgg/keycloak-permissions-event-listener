@@ -67,11 +67,16 @@ permissions-events
 
 ```json
 {
-  "realmId": "grounds",
+  "realmId": "internal-keycloak-realm-id",
+  "realmName": "grounds",
   "keycloakUserId": "d9d7d76e-03ad-4af8-bcb2-391aa5719459",
   "reason": "group_membership_changed"
 }
 ```
+
+`realmId` is Keycloak's internal realm identifier and remains the listener's configured admission
+boundary. `realmName` is the human-readable realm name used by Keycloak API clients and downstream
+service configuration.
 
 ## License
 
