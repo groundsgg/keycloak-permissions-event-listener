@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/groundsgg/keycloak-permissions-event-listener/compare/v0.2.0...v0.2.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **events:** include realm name in identity changes ([#11](https://github.com/groundsgg/keycloak-permissions-event-listener/issues/11)) ([cc45882](https://github.com/groundsgg/keycloak-permissions-event-listener/commit/cc45882a8d81d589295102b97c2a02b031655822))
+
 ## [0.2.0](https://github.com/groundsgg/keycloak-permissions-event-listener/compare/v0.1.0...v0.2.0) (2026-07-15)
 
 
