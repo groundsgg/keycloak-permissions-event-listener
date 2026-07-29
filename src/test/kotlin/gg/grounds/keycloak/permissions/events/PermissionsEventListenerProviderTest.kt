@@ -60,6 +60,7 @@ class PermissionsEventListenerProviderTest {
             listOf(
                 MinecraftIdentityChangedEvent(
                     realmId = REALM_ID,
+                    realmName = REALM_NAME,
                     keycloakUserId = "user-1",
                     reason = IdentityChangeReason.GROUP_MEMBERSHIP_CHANGED.value,
                 )
@@ -458,7 +459,7 @@ class PermissionsEventListenerProviderTest {
         operationType: OperationType,
         resourcePath: String,
         realmId: String = REALM_ID,
-        realmName: String = realmId,
+        realmName: String = if (realmId == REALM_ID) REALM_NAME else realmId,
     ) =
         AdminEvent().apply {
             this.realmId = realmId
@@ -474,7 +475,7 @@ class PermissionsEventListenerProviderTest {
         Event().apply {
             this.type = type
             this.realmId = REALM_ID
-            this.realmName = REALM_ID
+            this.realmName = REALM_NAME
             this.userId = userId
         }
 
@@ -508,7 +509,7 @@ class PermissionsEventListenerProviderTest {
             Event().apply {
                 this.type = type
                 this.realmId = REALM_ID
-                this.realmName = REALM_ID
+                this.realmName = REALM_NAME
                 this.userId = userId
             }
 
@@ -519,6 +520,7 @@ class PermissionsEventListenerProviderTest {
     }
 
     private companion object {
-        const val REALM_ID = "grounds"
+        const val REALM_ID = "realm-uuid"
+        const val REALM_NAME = "grounds"
     }
 }

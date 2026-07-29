@@ -26,7 +26,8 @@ class NatsIdentityChangePublisherTest {
             acknowledgement
         val event =
             MinecraftIdentityChangedEvent(
-                realmId = "grounds",
+                realmId = "realm-uuid",
+                realmName = "grounds",
                 keycloakUserId = "user-1",
                 reason = "identity_refreshed",
             )
@@ -38,7 +39,7 @@ class NatsIdentityChangePublisherTest {
             jetStream.publish("minecraft-identity.changed", any<ByteArray>())
         }
         assertEquals(
-            setOf("realmId", "keycloakUserId", "reason"),
+            setOf("realmId", "realmName", "keycloakUserId", "reason"),
             ObjectMapper().readTree(payload.captured).fieldNames().asSequence().toSet(),
         )
     }

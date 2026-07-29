@@ -27,7 +27,12 @@ internal constructor(
         if (!matchesRealm(event.realmId) || event.userId.isNullOrBlank()) return
         if (event.type !in REFRESH_EVENTS) return
 
-        schedule(event.realmId, event.userId, IdentityChangeReason.IDENTITY_REFRESHED)
+        schedule(
+            event.realmId,
+            event.realmName,
+            event.userId,
+            IdentityChangeReason.IDENTITY_REFRESHED,
+        )
     }
 
     override fun onEvent(event: AdminEvent, includeRepresentation: Boolean) {
@@ -46,7 +51,12 @@ internal constructor(
     private fun scheduleGroupMembership(event: AdminEvent) {
         if (event.operationType !in setOf(OperationType.CREATE, OperationType.DELETE)) return
         val userId = resourceId(event.resourcePath, "users") ?: return
-        schedule(event.realmId, userId, IdentityChangeReason.GROUP_MEMBERSHIP_CHANGED)
+        schedule(
+            event.realmId,
+            event.realmName,
+            userId,
+            IdentityChangeReason.GROUP_MEMBERSHIP_CHANGED,
+        )
     }
 
     private fun scheduleGroupMembers(event: AdminEvent) {
@@ -72,7 +82,7 @@ internal constructor(
                     return
                 }
         affectedUserIds.forEach { userId ->
-            schedule(event.realmId, userId, IdentityChangeReason.GROUP_CHANGED)
+            schedule(event.realmId, event.realmName, userId, IdentityChangeReason.GROUP_CHANGED)
         }
     }
 
@@ -98,22 +108,37 @@ internal constructor(
         val userId = resourceId(event.resourcePath, "users") ?: return
         when {
             isFederatedIdentityPath(event.resourcePath) ->
-                schedule(event.realmId, userId, IdentityChangeReason.MINECRAFT_IDENTITY_CHANGED)
+                schedule(
+                    event.realmId,
+                    event.realmName,
+                    userId,
+                    IdentityChangeReason.MINECRAFT_IDENTITY_CHANGED,
+                )
             event.operationType == OperationType.DELETE ->
-                schedule(event.realmId, userId, IdentityChangeReason.USER_DELETED)
+                schedule(event.realmId, event.realmName, userId, IdentityChangeReason.USER_DELETED)
             event.operationType == OperationType.UPDATE ->
-                schedule(event.realmId, userId, IdentityChangeReason.MINECRAFT_IDENTITY_CHANGED)
+                schedule(
+                    event.realmId,
+                    event.realmName,
+                    userId,
+                    IdentityChangeReason.MINECRAFT_IDENTITY_CHANGED,
+                )
         }
     }
 
-    private fun schedule(realmId: String, userId: String, reason: IdentityChangeReason) {
+    private fun schedule(
+        realmId: String,
+        realmName: String?,
+        userId: String,
+        reason: IdentityChangeReason,
+    ) {
         val pending =
             session.getAttribute(PENDING_CHANGES_ATTRIBUTE) as? PendingIdentityChanges
                 ?: PendingIdentityChanges(publisher, publishFailureReporter).also {
                     session.setAttribute(PENDING_CHANGES_ATTRIBUTE, it)
                     session.transactionManager.enlistAfterCompletion(it)
                 }
-        pending.add(realmId, userId, reason)
+        pending.add(realmId, realmName, userId, reason)
     }
 
     private fun matchesRealm(realmId: String?): Boolean = realmId in configuredRealmIds
@@ -139,22 +164,39 @@ internal constructor(
         private val publisher: IdentityChangePublisher,
         private val publishFailureReporter: (MinecraftIdentityChangedEvent, Exception) -> Unit,
     ) : AbstractKeycloakTransaction() {
-        private val changes = linkedMapOf<Pair<String, String>, IdentityChangeReason>()
+        private val changes = linkedMapOf<Pair<String, String>, PendingIdentityChange>()
 
-        fun add(realmId: String, userId: String, reason: IdentityChangeReason) {
-            changes.merge(realmId to userId, reason) { current, candidate ->
-                if (candidate.priority > current.priority) candidate else current
+        fun add(
+            realmId: String,
+            realmName: String?,
+            userId: String,
+            reason: IdentityChangeReason,
+        ) {
+            changes.merge(
+                realmId to userId,
+                PendingIdentityChange(realmName = realmName, reason = reason),
+            ) { current, candidate ->
+                PendingIdentityChange(
+                    realmName = candidate.realmName ?: current.realmName,
+                    reason =
+                        if (candidate.reason.priority > current.reason.priority) {
+                            candidate.reason
+                        } else {
+                            current.reason
+                        },
+                )
             }
         }
 
         override fun commitImpl() {
-            changes.forEach { (identity, reason) ->
+            changes.forEach { (identity, change) ->
                 val (realmId, userId) = identity
                 val event =
                     MinecraftIdentityChangedEvent(
                         realmId = realmId,
+                        realmName = change.realmName,
                         keycloakUserId = userId,
-                        reason = reason.value,
+                        reason = change.reason.value,
                     )
                 try {
                     publisher.publish(event)
@@ -168,6 +210,11 @@ internal constructor(
         override fun rollbackImpl() {
             changes.clear()
         }
+
+        private data class PendingIdentityChange(
+            val realmName: String?,
+            val reason: IdentityChangeReason,
+        )
     }
 
     private companion object {
