@@ -27,7 +27,7 @@ dependencies {
     compileOnly("com.fasterxml.jackson.core:jackson-databind")
     compileOnly("org.jboss.logging:jboss-logging")
 
-    implementation("io.nats:jnats:2.26.0")
+    implementation("io.nats:jnats:2.26.1")
 
     testImplementation(platform("org.keycloak:keycloak-parent:$keycloakVersion"))
     testImplementation("org.keycloak:keycloak-server-spi")
