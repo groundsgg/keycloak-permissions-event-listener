@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.3](https://github.com/groundsgg/keycloak-permissions-event-listener/compare/v0.2.2...v0.2.3) (2026-10-17)
+
+
+### Bug Fixes
+
+* bump gradle-wrapper from 9.7.0 to 9.7.1 ([#22](https://github.com/groundsgg/keycloak-permissions-event-listener/issues/22)) ([9d9e286](https://github.com/groundsgg/keycloak-permissions-event-listener/commit/9d9e286b7e0c0b1b813793c31f8fae2289de7c9c))
+* bump io.nats:jnats from 2.26.1 to 2.26.3 ([#28](https://github.com/groundsgg/keycloak-permissions-event-listener/issues/28)) ([2373154](https://github.com/groundsgg/keycloak-permissions-event-listener/commit/23731549216449d4cfd98649bb2395911df5f248))
+* bump jvm from 2.4.10 to 2.4.20 ([#26](https://github.com/groundsgg/keycloak-permissions-event-listener/issues/26)) ([32d5436](https://github.com/groundsgg/keycloak-permissions-event-listener/commit/32d543659f1dc835fd86186755ef31e7e66e5f7b))
+* bump org.keycloak:keycloak-parent in the keycloak group ([#19](https://github.com/groundsgg/keycloak-permissions-event-listener/issues/19)) ([ca8166b](https://github.com/groundsgg/keycloak-permissions-event-listener/commit/ca8166b110b5dac8ddc2737ed1ead5a99848a30f))
+
 ## [0.2.2](https://github.com/groundsgg/keycloak-permissions-event-listener/compare/v0.2.1...v0.2.2) (2026-08-23)
 
 
